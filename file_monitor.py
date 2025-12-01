@@ -185,37 +185,55 @@ def manual_gpu_selection():
             print("\n用户中断选择，使用默认配置")
             return "集成显卡"
 
-# 文件处理锁，避免并发冲突
+# 全局变量：文件处理锁和已处理文件集合，用于避免并发冲突
 _file_processing_lock = threading.Lock()
 _processed_files = set()
 
 class FileMonitor:
+    """
+    文件监控器类 - 负责监控视频文件并调用字幕翻译工具
+    
+    主要功能：
+    - 监控指定目录中的视频文件
+    - 调用字幕翻译工具处理视频
+    - 检测字幕文件生成状态
+    - 根据配置处理原视频文件
+    - 基于显卡性能智能控制并发任务数
+    """
+    
     def __init__(self, config=None):
+        """
+        初始化文件监控器
+        
+        参数:
+            config: 配置字典，如果为None则使用默认配置
+        """
         # 使用传入的配置，如果没有传入则使用默认配置
         if config is None:
             config = CONFIG
         
+        # 基础配置参数
         self.download_dir = config["DOWNLOAD_DIR"]
         self.translate_bat = config["TRANSLATE_BAT"]
         self.subtitle_dir = config["SUBTITLE_DIR"]
         self.video_extensions = config["VIDEO_EXTENSIONS"]
         self.delete_mode = config["DELETE_MODE"]
         
-        # 先设置日志记录
+        # 初始化日志记录
         self.setup_logging()
         
-        # 显卡检测和任务限制
+        # 显卡检测和任务限制配置
         # 优先使用用户选择的显卡类型
         user_gpu_type = config.get("GPU_TYPE", "中端独显")
         user_gpu_max_tasks = config["GPU_DETECTION"]["MAX_TASKS_BY_GPU_TYPE"].get(user_gpu_type, 1)
         
-        # 如果显卡检测启用，但用户选择与检测结果不同，则使用用户选择的设置
+        # 智能显卡检测逻辑：平衡用户选择和自动检测结果
         if config["GPU_DETECTION"]["ENABLED"]:
             detected_gpu = detect_gpu_type()
             detected_gpu_max_tasks = config["GPU_DETECTION"]["MAX_TASKS_BY_GPU_TYPE"].get(detected_gpu, 1)
             
             if user_gpu_type != detected_gpu:
-                # 用户选择与检测结果不同，使用用户选择
+                # 用户选择与检测结果不同，尊重用户选择
                 self.max_concurrent_tasks = user_gpu_max_tasks
                 self.logger.info(f"用户选择显卡类型: {user_gpu_type}, 检测到显卡类型: {detected_gpu}")
                 self.logger.info(f"使用用户选择的设置，最大并发任务数: {self.max_concurrent_tasks}")
@@ -228,11 +246,17 @@ class FileMonitor:
             self.max_concurrent_tasks = user_gpu_max_tasks
             self.logger.info(f"使用用户选择的显卡类型: {user_gpu_type}, 最大并发任务数: {self.max_concurrent_tasks}")
         
+        # 初始化状态管理器
         self.status_manager = StatusManager()
         self.setup_logging()
     
     def setup_logging(self):
-        """设置日志记录"""
+        """
+        设置日志记录系统
+        
+        配置日志记录器，同时输出到文件和控制台
+        日志格式：时间戳 - 日志级别 - 日志消息
+        """
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
@@ -244,7 +268,16 @@ class FileMonitor:
         self.logger = logging.getLogger(__name__)
     
     def get_video_files(self):
-        """获取下载目录中的视频文件"""
+        """
+        获取下载目录中的视频文件列表
+        
+        返回:
+            list: 视频文件路径列表
+            
+        异常处理:
+            - 如果目录不存在，记录错误并返回空列表
+            - 如果读取目录失败，记录错误并返回已找到的文件列表
+        """
         if not os.path.exists(self.download_dir):
             self.logger.error(f"下载目录不存在: {self.download_dir}")
             return []
@@ -263,7 +296,18 @@ class FileMonitor:
         return video_files
     
     def is_subtitle_generated(self, video_path):
-        """检查字幕文件是否已生成"""
+        """
+        检查字幕文件是否已生成
+        
+        参数:
+            video_path: 视频文件路径
+            
+        返回:
+            bool: 字幕文件是否存在
+            
+        说明:
+            根据视频文件名生成对应的.srt字幕文件路径并检查是否存在
+        """
         video_name = os.path.splitext(os.path.basename(video_path))[0]
         subtitle_path = os.path.join(self.subtitle_dir, f"{video_name}.srt")
         

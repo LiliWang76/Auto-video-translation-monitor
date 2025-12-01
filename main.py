@@ -15,7 +15,19 @@ from config_wizard import ConfigWizard
 from file_monitor import FileMonitor
 
 def check_configuration():
-    """检查配置是否有效，如果无效则运行配置向导"""
+    """
+    检查配置是否有效，如果无效则运行配置向导
+    
+    检查内容：
+    - 配置项是否完整（无缺失）
+    - 路径是否存在且有效
+    
+    返回:
+        bool: 如果配置已更新返回True，否则返回False
+        
+    异常处理:
+        - 如果配置问题严重且用户取消配置，程序会退出
+    """
     wizard = ConfigWizard()
     missing_paths, invalid_paths = wizard.check_config_validity()
     
@@ -47,7 +59,25 @@ def check_configuration():
     return False
 
 def main():
-    """主函数"""
+    """
+    程序主函数 - 视频字幕翻译自动监控程序入口点
+    
+    功能：
+    - 解析命令行参数
+    - 检查并配置必要路径
+    - 启动文件监控功能
+    - 处理异常和中断
+    
+    支持的运行模式：
+    - 守护进程模式 (--daemon)
+    - 单次检查模式 (--once)
+    - 配置向导模式 (--config-only)
+    - 标准监控模式（默认）
+    
+    异常处理：
+    - 捕获键盘中断（Ctrl+C）
+    - 捕获其他异常并优雅退出
+    """
     parser = argparse.ArgumentParser(description='视频字幕翻译自动监控程序')
     parser.add_argument('--daemon', action='store_true', help='以守护进程模式运行')
     parser.add_argument('--once', action='store_true', help='只执行一次检查后退出')

@@ -13,15 +13,52 @@ import json
 from config import CONFIG
 
 class ConfigWizard:
-    """配置向导类"""
+    """
+    配置向导类 - 提供交互式配置界面
+    
+    主要功能：
+    - 检查当前配置的有效性
+    - 引导用户设置必要的目录路径
+    - 验证用户输入的路径
+    - 创建和保存配置文件
+    - 提供示例配置文件模板
+    
+    支持的配置项：
+    - 下载目录 (DOWNLOAD_DIR)
+    - 字幕翻译工具 (TRANSLATE_BAT)
+    - 字幕输出目录 (SUBTITLE_DIR)
+    """
     
     def __init__(self):
+        """
+        初始化配置向导
+        
+        初始化配置参数：
+        - 配置文件名
+        - 默认配置引用
+        - 待修改配置项列表
+        """
         self.config_file = "config.json"
         self.default_config = CONFIG
         self.modify_paths = []  # 要修改的配置项列表
         
     def check_config_validity(self):
-        """检查当前配置是否有效"""
+        """
+        检查当前配置的有效性
+        
+        检查内容：
+        - 配置项是否已设置（非空）
+        - 路径是否存在
+        - 翻译工具是否为有效的BAT文件
+        
+        返回:
+            tuple: (missing_paths, invalid_paths)
+            - missing_paths: 缺失的配置项列表
+            - invalid_paths: 无效的路径配置项列表
+            
+        每个配置项包含信息：
+            (配置键, 描述, 原因/路径)
+        """
         missing_paths = []
         invalid_paths = []
         
@@ -51,7 +88,23 @@ class ConfigWizard:
         return missing_paths, invalid_paths
     
     def get_user_input_path(self, prompt, default_path=""):
-        """获取用户输入的路径"""
+        """
+        获取用户输入的路径并进行验证
+        
+        参数:
+            prompt: 提示信息
+            default_path: 默认路径（可选）
+            
+        返回:
+            str: 用户输入的路径
+            
+        功能:
+            - 显示当前设置（如果有默认路径）
+            - 允许用户直接回车使用默认设置
+            - 验证路径是否存在
+            - 提供重新输入选项
+            - 支持用户强制使用不存在的路径
+        """
         while True:
             print(f"\n{prompt}")
             if default_path:

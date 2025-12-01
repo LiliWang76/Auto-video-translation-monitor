@@ -23,43 +23,86 @@ from file_monitor import FileMonitor, detect_gpu_type
 from status_manager import StatusManager
 
 class VideoMonitorGUI:
+    """
+    视频字幕翻译监控工具GUI主类
+    
+    主要功能：
+    - 提供图形化界面配置监控参数
+    - 启动和停止监控任务
+    - 实时显示监控状态和任务统计
+    - 提供日志显示和操作功能
+    - 集成显卡检测和配置管理
+    """
+    
     def __init__(self):
+        """
+        初始化GUI界面
+        
+        初始化流程：
+        1. 创建主窗口和基本配置
+        2. 加载当前配置
+        3. 显示显卡检测信息
+        4. 设置界面布局
+        5. 启动GUI更新循环
+        """
+        # 监控状态变量
         self.is_monitoring = False
         self.monitor_thread = None
         self.file_monitor = None
+        
+        # 创建主窗口
         self.root = tk.Tk()
         self.root.title("视频字幕翻译监控工具 v1.0")
         self.root.geometry("800x700")
         self.root.resizable(True, True)
         
-        # 设置程序图标
+        # 尝试设置程序图标（如果存在）
         try:
             self.root.iconbitmap("")
         except:
-            pass
+            pass  # 图标设置失败不影响程序运行
         
         # 加载配置
         self.config = CONFIG.copy()
         
-        # 显示显卡检测提示
+        # 显示显卡检测提示（帮助用户选择合适的显卡类型）
         self.show_gpu_detection_info()
         
+        # 设置界面布局
         self.setup_layout()
+        
+        # 加载当前配置到界面控件
         self.load_current_config()
         
         # 初始化状态管理器
         self.status_manager = StatusManager()
         
-        # 启动GUI更新循环
+        # 启动GUI更新循环（每2秒更新一次状态显示）
         self.update_interval = 2000  # 2秒更新一次
         self.update_gui()
         
     def get_detailed_gpu_info(self):
-        """获取详细的显卡信息"""
+        """
+        获取详细的显卡硬件信息
+        
+        使用WMI接口查询系统显卡信息，包括：
+        - 显卡型号名称
+        - 显存大小
+        - 驱动版本
+        - 视频处理器信息
+        
+        返回:
+            list: 显卡信息字典列表，如果获取失败返回None
+            
+        异常处理:
+            - 如果WMI模块不可用，返回None
+            - 如果查询过程出错，返回None
+        """
         try:
             import wmi
             c = wmi.WMI()
             
+            # 查询显卡控制器信息
             gpus = c.Win32_VideoController()
             if not gpus:
                 return None
@@ -80,7 +123,19 @@ class VideoMonitorGUI:
             return None
     
     def show_gpu_detection_info(self):
-        """显示显卡检测信息提示"""
+        """
+        显示显卡检测信息对话框
+        
+        功能:
+        - 获取系统显卡详细信息
+        - 检测显卡性能等级
+        - 显示检测结果和建议
+        - 提供使用建议和警告
+        
+        异常处理:
+        - 如果检测失败，显示警告信息并提示手动选择
+        - 确保用户了解显卡选择对性能的影响
+        """
         try:
             # 获取详细显卡信息
             gpu_info = self.get_detailed_gpu_info()
@@ -116,7 +171,21 @@ class VideoMonitorGUI:
             messagebox.showwarning("显卡检测", f"无法检测显卡信息: {e}\n\n请手动选择合适的显卡类型。")
         
     def setup_layout(self):
-        """设置GUI布局"""
+        """
+        设置GUI界面布局
+        
+        创建的主要界面组件：
+        - 标题区域：程序名称和说明
+        - 配置区域：监控目录、翻译工具、字幕输出、显卡类型等设置
+        - 控制区域：启动/停止按钮和状态显示
+        - 状态区域：任务统计和实时状态
+        - 日志区域：滚动文本显示运行日志
+        
+        布局特点：
+        - 使用网格布局管理器
+        - 支持窗口大小调整
+        - 响应式设计，组件自适应窗口大小
+        """
         
         # 创建主框架
         main_frame = ttk.Frame(self.root, padding="10")
@@ -303,27 +372,46 @@ class VideoMonitorGUI:
         if directory:
             self.subtitle_dir_var.set(directory)
     
-    def validate_config(self):
-        """验证配置是否有效"""
+    def validate_config(self) -> list:
+        """
+        验证用户配置是否有效
+        
+        返回:
+            list: 错误信息列表，为空表示配置有效
+            
+        检查项:
+            - 监控目录是否存在且可访问
+            - 翻译工具文件是否存在且可执行
+            - 字幕输出目录是否存在且可写入
+        """
         errors = []
         
+        # 验证监控目录
         download_dir = self.download_dir_var.get().strip()
         if not download_dir:
-            errors.append("请选择监控目录")
+            errors.append("❌ 请选择监控目录")
         elif not os.path.exists(download_dir):
-            errors.append(f"监控目录不存在: {download_dir}")
+            errors.append(f"❌ 监控目录不存在: {download_dir}")
+        elif not os.access(download_dir, os.R_OK):
+            errors.append(f"❌ 监控目录不可读: {download_dir}")
         
+        # 验证翻译工具
         translate_bat = self.translate_bat_var.get().strip()
         if not translate_bat:
-            errors.append("请选择翻译工具")
+            errors.append("❌ 请选择翻译工具")
         elif not os.path.exists(translate_bat):
-            errors.append(f"翻译工具不存在: {translate_bat}")
+            errors.append(f"❌ 翻译工具不存在: {translate_bat}")
+        elif not os.access(translate_bat, os.X_OK):
+            errors.append(f"❌ 翻译工具不可执行: {translate_bat}")
         
+        # 验证字幕输出目录
         subtitle_dir = self.subtitle_dir_var.get().strip()
         if not subtitle_dir:
-            errors.append("请选择字幕输出目录")
+            errors.append("❌ 请选择字幕输出目录")
         elif not os.path.exists(subtitle_dir):
-            errors.append(f"字幕输出目录不存在: {subtitle_dir}")
+            errors.append(f"❌ 字幕输出目录不存在: {subtitle_dir}")
+        elif not os.access(subtitle_dir, os.W_OK):
+            errors.append(f"❌ 字幕输出目录不可写: {subtitle_dir}")
         
         return errors
     

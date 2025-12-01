@@ -15,7 +15,15 @@ import subprocess
 from datetime import datetime
 
 def check_pyinstaller():
-    """检查PyInstaller是否安装"""
+    """
+    检查PyInstaller是否已安装
+    
+    返回:
+        bool: PyInstaller是否可用
+        
+    说明:
+        通过尝试导入PyInstaller模块来检测安装状态
+    """
     try:
         import PyInstaller
         print("✓ PyInstaller已安装")
@@ -25,7 +33,15 @@ def check_pyinstaller():
         return False
 
 def install_pyinstaller():
-    """安装PyInstaller"""
+    """
+    自动安装PyInstaller包
+    
+    返回:
+        bool: 安装是否成功
+        
+    说明:
+        使用pip命令安装PyInstaller，适用于打包环境准备
+    """
     print("正在安装PyInstaller...")
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
@@ -36,7 +52,17 @@ def install_pyinstaller():
         return False
 
 def cleanup_build_dir():
-    """清理构建目录"""
+    """
+    清理构建过程中生成的临时目录
+    
+    清理的目录包括:
+    - build: PyInstaller构建目录
+    - dist: 输出目录
+    - __pycache__: Python缓存目录
+        
+    说明:
+        确保每次构建都是干净的，避免旧文件影响新构建
+    """
     build_dirs = ["build", "dist", "__pycache__"]
     for dir_name in build_dirs:
         if os.path.exists(dir_name):
@@ -44,7 +70,15 @@ def cleanup_build_dir():
             shutil.rmtree(dir_name)
 
 def create_spec_file():
-    """创建PyInstaller spec文件"""
+    """
+    创建PyInstaller配置文件（spec文件）
+    
+    功能:
+    - 定义打包参数和配置
+    - 指定包含的数据文件
+    - 设置程序图标和窗口属性
+    - 配置优化选项
+    """
     spec_content = '''# -*- mode: python ; coding: utf-8 -*-
 
 import sys
