@@ -1,0 +1,6 @@
+# 视频自动翻译监控解决方案依赖库
+# 此程序使用Python标准库，无需额外安装依赖
+# 可以直接运行或打包为可执行文件
+
+# 使用的Python标准库:
+# os, time, subprocess, logging, shutil, threading, ctypes, json, tkinter
