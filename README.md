@@ -1,35 +1,68 @@
-# 视频字幕翻译自动监控解决方案
+# 视频字幕翻译自动监控工具 - Faster-Whisper-TransWithAI集成版
 
-## 项目概述
+## 🎯 项目概述
 
-这是一个自动监控网盘下载目录，检测新视频文件并调用字幕翻译工具进行处理的Python程序。程序会持续监控指定目录，自动发现新视频文件，调用第三方字幕翻译工具进行处理，并在字幕生成完成后自动清理原视频文件。
-🎙️ Faster Whisper 转录工具 - 发行说明
-⚠️ 重要声明
-本软件为开源软件
+**基于 🔗 [Faster-Whisper-TransWithAI-ChickenRice](https://github.com/TransWithAI/Faster-Whisper-TransWithAI-ChickenRice) 的自动化监控解决方案**
 
-🔗 开源地址: https://github.com/TransWithAI/Faster-Whisper-TransWithAI-ChickenRice
+这是一个专为Faster-Whisper-TransWithAI字幕翻译工具设计的自动化监控程序。程序会持续监控指定目录，自动发现新视频文件，调用Faster-Whisper-TransWithAI进行字幕翻译处理，并在字幕生成完成后自动清理原视频文件，实现从下载到字幕生成的全流程自动化。
 
-👥 开发团队: AI汉化组 (https://t.me/transWithAI)
+## ✨ 核心特色
 
-## 主要功能
+### 🎯 与Faster-Whisper-TransWithAI完美集成
+- **专为Faster-Whisper设计**: 完全适配Faster-Whisper-TransWithAI的工作流程
+- **自动参数传递**: 智能调用Faster-Whisper的批处理文件进行字幕翻译
+- **进度监控**: 实时跟踪Faster-Whisper的处理状态和进度
+- **错误处理**: 自动处理Faster-Whisper运行中的异常情况
 
-- 🔍 **自动监控**: 持续监控指定目录，自动发现新视频文件
-- 🎯 **并行处理**: 支持同时处理多个视频文件，互不干扰
-- 📝 **字幕翻译**: 调用第三方字幕翻译工具进行自动处理
+### 🔧 自动化监控功能
+- 🔍 **智能监控**: 持续监控指定目录，自动发现新视频文件
+- ⚡ **并行处理**: 支持同时处理多个视频文件，互不干扰
 - 📊 **状态管理**: 智能跟踪文件处理状态，避免重复处理
-- 🗑️ **删除方式选择**: 支持三种删除方式（回收站/备份目录/直接删除）
-- 🎮 **显卡任务限制**: 根据显卡性能自动限制并发任务数
-- 📋 **日志记录**: 详细的运行日志记录
+- 🎮 **显卡优化**: 根据显卡性能自动限制并发任务数
+- 🛡️ **文件安全**: 支持三种删除方式（回收站/备份目录/直接删除）
+- 📋 **详细日志**: 完整的运行日志记录，便于问题排查
 
-## 系统要求
+## 📋 系统要求
 
-- Python 3.6+
-- Windows操作系统（支持Linux/macOS但需要调整路径格式）
-- 第三方字幕翻译工具（如faster-whisper等）
-- **显卡要求：仅支持NVIDIA显卡（CUDA加速）**
+### 🎯 必需组件
+- **Python 3.6+**（仅源代码运行需要）
+- **Windows操作系统**（支持Linux/macOS但需要调整路径格式）
+- **🔗 [Faster-Whisper-TransWithAI-ChickenRice](https://github.com/TransWithAI/Faster-Whisper-TransWithAI-ChickenRice)** 字幕翻译工具
+
+### 💻 硬件要求
+- **显卡要求：推荐NVIDIA显卡（CUDA加速）**
   - 最低要求：支持CUDA 6.1+的NVIDIA显卡（GTX 10系列及以上）
   - AMD显卡用户需使用CPU模式（性能较慢）
   - 不支持Intel集成显卡的硬件加速
+- **内存**: 8GB以上（根据视频文件大小调整）
+- **存储**: 足够的磁盘空间存放视频文件和字幕文件
+
+## 🔗 Faster-Whisper-TransWithAI 集成说明
+
+### 🎯 集成原理
+本监控工具是专为 **Faster-Whisper-TransWithAI-ChickenRice** 设计的自动化前端工具，通过以下方式实现完美集成：
+
+1. **自动调用**: 监控工具自动检测新视频文件，并调用Faster-Whisper的批处理文件进行字幕翻译
+2. **参数传递**: 智能传递视频文件路径和输出目录参数给Faster-Whisper
+3. **进度监控**: 实时监控Faster-Whisper的处理状态和字幕生成进度
+4. **错误处理**: 自动处理Faster-Whisper运行中的异常情况
+
+### ⚙️ 配置要求
+- **Faster-Whisper路径**: 确保正确配置Faster-Whisper的bat文件路径
+- **输出目录一致**: 监控工具的字幕输出目录应与Faster-Whisper设置保持一致
+- **文件格式支持**: 确保监控工具支持的文件格式与Faster-Whisper一致
+
+### 🔄 工作流程
+1. 监控工具检测到新视频文件
+2. 自动调用Faster-Whisper进行字幕翻译
+3. 等待Faster-Whisper完成字幕生成
+4. 检测字幕文件生成完成
+5. 自动清理原视频文件（可选）
+
+### 💡 使用建议
+- 确保Faster-Whisper已正确安装和配置
+- 建议先在Faster-Whisper中测试单个视频文件处理
+- 配置合适的监控间隔，避免过于频繁的文件检测
 
 ## 快速开始
 
@@ -60,18 +93,19 @@
 ```python
 CONFIG = {
     # 网盘下载目录（监控目录）
-    "DOWNLOAD_DIR": r"E:\115downloads\等待转字幕",
+    "DOWNLOAD_DIR": r"C:\path\to\monitor\directory",
     
-    # 字幕翻译工具bat文件路径
-    "TRANSLATE_BAT": r"E:\BaiduNetdiskDownload\faster_whisper_transwithai_windows_cu118-chickenrice\GPUVideo.bat",
+    # Faster-Whisper-TransWithAI的bat文件路径
+    # 例如："TRANSLATE_BAT": r"C:\Faster-Whisper-TransWithAI-ChickenRice\faster-whisper.bat"
+    "TRANSLATE_BAT": r"C:\path\to\Faster-Whisper-TransWithAI\translate_tool.bat",
     
-    # 字幕输出目录
-    "SUBTITLE_DIR": r"E:\BaiduNetdiskDownload\faster_whisper_transwithai_windows_cu118-chickenrice\输出",
+    # 字幕输出目录（应与Faster-Whisper设置一致）
+    "SUBTITLE_DIR": r"C:\path\to\subtitle\output",
     
     # 监控间隔（秒）
     "CHECK_INTERVAL": 10,
     
-    # 支持的视频文件扩展名
+    # 支持的视频文件扩展名（应与Faster-Whisper支持格式一致）
     "VIDEO_EXTENSIONS": [".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".m4v", ".webm"],
     
     # 处理状态文件路径
@@ -307,9 +341,18 @@ dist/                              # 打包输出目录
 
 如需集成其他翻译工具，修改`execute_translation`方法中的命令调用逻辑。
 
-## 许可证
+## 📜 许可证与声明
 
+### 许可证
 本项目仅供学习和研究使用。
+
+### 依赖声明
+本监控工具是专为 **🔗 [Faster-Whisper-TransWithAI-ChickenRice](https://github.com/TransWithAI/Faster-Whisper-TransWithAI-ChickenRice)** 设计的自动化前端工具，需要依赖该字幕翻译工具进行实际的字幕生成工作。
+
+### 使用说明
+- 本工具仅提供自动监控和任务调度功能
+- 实际的字幕翻译功能由Faster-Whisper-TransWithAI提供
+- 用户需自行确保已正确安装和配置Faster-Whisper-TransWithAI
 
 ## 技术支持
 
