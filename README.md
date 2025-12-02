@@ -3,6 +3,13 @@
 ## 项目概述
 
 这是一个自动监控网盘下载目录，检测新视频文件并调用字幕翻译工具进行处理的Python程序。程序会持续监控指定目录，自动发现新视频文件，调用第三方字幕翻译工具进行处理，并在字幕生成完成后自动清理原视频文件。
+🎙️ Faster Whisper 转录工具 - 发行说明
+⚠️ 重要声明
+本软件为开源软件
+
+🔗 开源地址: https://github.com/TransWithAI/Faster-Whisper-TransWithAI-ChickenRice
+
+👥 开发团队: AI汉化组 (https://t.me/transWithAI)
 
 ## 主要功能
 
